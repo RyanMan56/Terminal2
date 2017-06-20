@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class Monitor : MonoBehaviour {
 	public int width = 88;
 	public int height = 24;
+    public Vector2 CurrentPosition;
 
     private GameObject _screenTextObj;
     private Text _screenText;
@@ -15,7 +16,7 @@ public class Monitor : MonoBehaviour {
     private Collider _screenCollider;
 
     private string _currentCmd;
-    private List<List<char>> _textArray, _lastTextArray;
+    private List<List<char>> _textArray, _lastTextArray;    
 
 	// Use this for initialization
 	void Start () {
@@ -27,6 +28,7 @@ public class Monitor : MonoBehaviour {
 
         _textArray = new List<List<char>>();
         _lastTextArray = new List<List<char>>();
+        CurrentPosition = new Vector2(0, 0);
 	}
 	
 	// Update is called once per frame
@@ -98,17 +100,23 @@ public class Monitor : MonoBehaviour {
 
     void AddTextValue(char val)
     {
-        //if (!_textArray.Count.Equals(0))
-        //{
-        //    Debug.Log("COUNT: " + _textArray[_textArray.Count - 1].Count);
-        //}
         if (_textArray.Count.Equals(0) || _textArray[_textArray.Count - 1].Count.Equals(width - 1))
-        {
+        {            
+            CurrentPosition = new Vector2(1, _textArray.Count);
             _textArray.Add(new List<char>() { val });
+            
         }
         else
         {
             _textArray[_textArray.Count - 1].Add(val);
+            if (_textArray[_textArray.Count - 1].Count.Equals(width - 1))
+            {
+                CurrentPosition = new Vector2(0, _textArray.Count);
+            }
+            else
+            {
+                CurrentPosition = new Vector2(_textArray[_textArray.Count - 1].Count, _textArray.Count - 1);
+            }
         }
     }    
 
@@ -116,6 +124,7 @@ public class Monitor : MonoBehaviour {
     {        
         ExecuteCommand();
         _currentCmd = "";
+        CurrentPosition = new Vector2(0, _textArray.Count);
 
         _textArray.Add(new List<char>());
     }
