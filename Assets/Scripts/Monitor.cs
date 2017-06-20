@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -53,29 +54,33 @@ public class Monitor : MonoBehaviour {
 
     void TextInput()
     {
+        string inputString = Input.inputString;
         if (Input.GetKeyDown(KeyCode.Return))
-        {
-            Debug.Log("Returned value: " + _currentCmd);
-            _currentCmd = "";
+        {                      
+            ReturnPressed();            
         }
         else if (Input.GetKeyDown(KeyCode.Backspace))
         {
 
         }
-        else if (Input.inputString != "")
+        else if (inputString != "")
         {
             Debug.Log(Input.inputString);
             _currentCmd += Input.inputString;
-            AddTextValue(Input.inputString[0]);
+
+            foreach (char c in inputString)
+            {
+                AddTextValue(c);
+            }
         }
     }
     
     void UpdateScreen()
     {
-        if (!_lastTextArray.Equals(_textArray)) {
-            Debug.Log("Helooooooooo");
+        if (!CompareLists(_lastTextArray, _textArray)) {
+            Debug.Log("Screen refreshed");
             _screenText.text = GridToString(_textArray);
-            _lastTextArray = _textArray;
+            _lastTextArray = _textArray.ConvertAll(a => new List<char>(a));
         }
     }
 
@@ -84,7 +89,8 @@ public class Monitor : MonoBehaviour {
         string text = "";
         foreach (List<char> chars in chars2d)
         {
-            text += chars;
+
+            text += new string(chars.ToArray());
             if (chars.Count < width) text += '\n';
         }
         return text;
@@ -92,6 +98,10 @@ public class Monitor : MonoBehaviour {
 
     void AddTextValue(char val)
     {
+        //if (!_textArray.Count.Equals(0))
+        //{
+        //    Debug.Log("COUNT: " + _textArray[_textArray.Count - 1].Count);
+        //}
         if (_textArray.Count.Equals(0) || _textArray[_textArray.Count - 1].Count.Equals(width - 1))
         {
             _textArray.Add(new List<char>() { val });
@@ -101,4 +111,31 @@ public class Monitor : MonoBehaviour {
             _textArray[_textArray.Count - 1].Add(val);
         }
     }    
+
+    void ReturnPressed()
+    {        
+        ExecuteCommand();
+        _currentCmd = "";
+
+        _textArray.Add(new List<char>());
+    }
+    
+    void ExecuteCommand()
+    {
+        Debug.Log("Returned value: " + _currentCmd);
+    }
+
+    bool CompareLists<T>(List<List<T>> A, List<List<T>> B) 
+    {
+        if (A.SequenceEqual(B)) return true; // so it doesn't initially keep checking forever when they're empty
+        if (!A.Count.Equals(B.Count)) return false;
+
+        int count = A.Count < B.Count ? B.Count : A.Count;
+
+        for (int i = 0; i < count; i++)
+        {
+            if (!A[i].SequenceEqual(B[i])) return false;
+        }
+        return true;
+    }
 }
