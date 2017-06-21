@@ -15,7 +15,7 @@ public class Monitor : MonoBehaviour {
     private PlayerController _playerController;
     private Collider _screenCollider;
 
-    private string _currentCmd;
+    private string _currentCmd = "";
     private List<List<char>> _textArray, _lastTextArray;    
 
 	// Use this for initialization
@@ -33,6 +33,7 @@ public class Monitor : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        Debug.Log(CurrentPosition);
         CheckTouch();
         if (!_playerController.canMove)
         {
@@ -61,7 +62,6 @@ public class Monitor : MonoBehaviour {
         {
             foreach (KeyCode c in inputString)
             {
-                Debug.Log(Input.inputString);
                 if (c.Equals(KeyCode.Return))
                 {
                     ReturnPressed();
@@ -82,7 +82,6 @@ public class Monitor : MonoBehaviour {
     void UpdateScreen()
     {
         if (!CompareLists(_lastTextArray, _textArray)) {
-            Debug.Log("Screen refreshed");
             _screenText.text = GridToString(_textArray);
             _lastTextArray = _textArray.ConvertAll(a => new List<char>(a));
         }
@@ -102,6 +101,7 @@ public class Monitor : MonoBehaviour {
 
     void AddTextValue(char val)
     {
+        Debug.Log("Current: " + _currentCmd);
         if (_textArray.Count.Equals(0) || _textArray[_textArray.Count - 1].Count.Equals(width - 1))
         {            
             CurrentPosition = new Vector2(1, _textArray.Count);
@@ -133,18 +133,21 @@ public class Monitor : MonoBehaviour {
 
     void BackspacePressed()
     {
+        Debug.Log("Current: " + _currentCmd);
         if (_currentCmd.Length > 0)
         {
-            _currentCmd.Substring(0, _currentCmd.Length - 1);
+            _currentCmd = _currentCmd.Substring(0, _currentCmd.Length - 1);
             if (CurrentPosition.x > 0)
             {
-                _textArray[(int)CurrentPosition.y].RemoveAt((int)CurrentPosition.x - 1);
+                _textArray[(int)CurrentPosition.y].RemoveAt((int)CurrentPosition.x - 1);                
                 CurrentPosition.x--;
-                Debug.Log(CurrentPosition.x - 1);
             } 
             else
             {
                 _textArray.RemoveAt((int)CurrentPosition.y);
+                CurrentPosition.y = CurrentPosition.y - 1;
+                CurrentPosition.x = _textArray[(int)CurrentPosition.y].Count - 1;
+                _textArray[(int)CurrentPosition.y].RemoveAt((int)CurrentPosition.x);                
             }
         }
     }
