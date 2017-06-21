@@ -57,22 +57,24 @@ public class Monitor : MonoBehaviour {
     void TextInput()
     {
         string inputString = Input.inputString;
-        if (Input.GetKeyDown(KeyCode.Return))
-        {                      
-            ReturnPressed();            
-        }
-        else if (Input.GetKeyDown(KeyCode.Backspace))
+        if (inputString != "")
         {
-
-        }
-        else if (inputString != "")
-        {
-            Debug.Log(Input.inputString);
-            _currentCmd += Input.inputString;
-
-            foreach (char c in inputString)
+            foreach (KeyCode c in inputString)
             {
-                AddTextValue(c);
+                Debug.Log(Input.inputString);
+                if (c.Equals(KeyCode.Return))
+                {
+                    ReturnPressed();
+                }
+                else if (c.Equals(KeyCode.Backspace))
+                {
+                    BackspacePressed();
+                }
+                else
+                {
+                    _currentCmd += Input.inputString;
+                    AddTextValue((char)c);
+                }                
             }
         }
     }
@@ -127,6 +129,24 @@ public class Monitor : MonoBehaviour {
         CurrentPosition = new Vector2(0, _textArray.Count);
 
         _textArray.Add(new List<char>());
+    }
+
+    void BackspacePressed()
+    {
+        if (_currentCmd.Length > 0)
+        {
+            _currentCmd.Substring(0, _currentCmd.Length - 1);
+            if (CurrentPosition.x > 0)
+            {
+                _textArray[(int)CurrentPosition.y].RemoveAt((int)CurrentPosition.x - 1);
+                CurrentPosition.x--;
+                Debug.Log(CurrentPosition.x - 1);
+            } 
+            else
+            {
+                _textArray.RemoveAt((int)CurrentPosition.y);
+            }
+        }
     }
     
     void ExecuteCommand()
