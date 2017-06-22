@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -102,23 +101,27 @@ public class Monitor : MonoBehaviour {
     void AddTextValue(char val)
     {
         Debug.Log("Current: " + _currentCmd);
-        if (_textArray.Count.Equals(0) || _textArray[_textArray.Count - 1].Count.Equals(width - 1))
+
+        if (_textArray.Count.Equals(0))
         {            
-            CurrentPosition = new Vector2(1, _textArray.Count);
             _textArray.Add(new List<char>() { val });
-            
+            CurrentPosition.x++;
         }
         else
         {
-            _textArray[_textArray.Count - 1].Add(val);
-            if (_textArray[_textArray.Count - 1].Count.Equals(width - 1))
+            _textArray[(int)CurrentPosition.y].Add(val);
+            if (_textArray[(int)CurrentPosition.y].Count.Equals(width - 1))
             {
-                CurrentPosition = new Vector2(0, _textArray.Count);
+                CurrentPosition = new Vector2(0, CurrentPosition.y + 1);
+                if (_textArray.Count <= CurrentPosition.y)
+                {
+                    _textArray.Add(new List<char>());
+                }
             }
             else
             {
-                CurrentPosition = new Vector2(_textArray[_textArray.Count - 1].Count, _textArray.Count - 1);
-            }
+                CurrentPosition.x++;
+            }            
         }
     }    
 
@@ -126,7 +129,7 @@ public class Monitor : MonoBehaviour {
     {        
         ExecuteCommand();
         _currentCmd = "";
-        CurrentPosition = new Vector2(0, _textArray.Count);
+        CurrentPosition = new Vector2(0, CurrentPosition.y + 1);
 
         _textArray.Add(new List<char>());
     }
