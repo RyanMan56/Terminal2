@@ -25,6 +25,12 @@ public class ScreenCursor : MonoBehaviour {
         SetPosition();
     }
 
+    public void ResetTimer()
+    {
+        _image.enabled = true;
+        _elapsedTime = 0;
+    }
+
     void Blink()
     {
         _elapsedTime += Time.deltaTime;

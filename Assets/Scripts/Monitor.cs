@@ -13,6 +13,7 @@ public class Monitor : MonoBehaviour {
     private GameObject _player;
     private PlayerController _playerController;
     private Collider _screenCollider;
+    private ScreenCursor _cursorScript;
 
     private string _currentCmd = "";
     private List<List<char>> _textArray, _lastTextArray;    
@@ -24,6 +25,7 @@ public class Monitor : MonoBehaviour {
         _player = GameObject.Find("Player");
         _playerController = _player.GetComponent<PlayerController>();
         _screenCollider = GameObject.Find("Object/Screen").GetComponent<BoxCollider>();
+        _cursorScript = GetComponentInChildren<ScreenCursor>();
 
         _textArray = new List<List<char>>();
         _lastTextArray = new List<List<char>>();
@@ -61,6 +63,7 @@ public class Monitor : MonoBehaviour {
         {
             foreach (KeyCode c in inputString)
             {
+                _cursorScript.ResetTimer();
                 if (c.Equals(KeyCode.Return))
                 {
                     ReturnPressed();
