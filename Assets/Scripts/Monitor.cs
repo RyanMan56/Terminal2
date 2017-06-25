@@ -82,18 +82,10 @@ public class Monitor : MonoBehaviour
                         ReturnPressed();
                         break;
                     case KeyCode.Backspace:
-                        BackspacePressed();
+                        HandleBackspacing();                        
                         break;
-                    default:                        
-                        if (_currentCmd.Length > 0 && CurrentPositionInCmd != _currentCmd.Length)
-                        {
-                            BeginInsertChar((char)c, (int)CurrentPosition.y, (int)CurrentPosition.x);
-                        }
-                        else
-                        {
-                            AddTextValue((char)c);
-                        }
-                        Debug.Log(CurrentPositionInCmd + ", " + _currentCmd.Length + ", " + _currentCmd);
+                    default:
+                        HandleAddingText((char)c);                        
                         break;
                 }
             }
@@ -121,6 +113,24 @@ public class Monitor : MonoBehaviour
         return text;
     }
 
+    void HandleAddingText(char c)
+    {
+        if (_currentCmd.Length > 0 && CurrentPositionInCmd != _currentCmd.Length)
+        {
+            BeginInsertChar(c, (int)CurrentPosition.y, (int)CurrentPosition.x);
+        }
+        else
+        {
+            AddTextValue(c);
+        }
+        Debug.Log(CurrentPositionInCmd + ", " + _currentCmd.Length + ", " + _currentCmd);
+    }
+
+    void HandleBackspacing()
+    {
+        BackspacePressed();
+    }
+
     void AddTextValue(char val)
     {
         Debug.Log("Current: " + _currentCmd + "_");
@@ -133,7 +143,7 @@ public class Monitor : MonoBehaviour
         else
         {
             _textArray[(int)CurrentPosition.y].Add(val);
-            if (_textArray[(int)CurrentPosition.y].Count.Equals(width - 1)) // TODO Needs rewriting for cursor not being at end
+            if (_textArray[(int)CurrentPosition.y].Count.Equals(width - 1))
             {
                 CurrentPosition = new Vector2(0, CurrentPosition.y + 1);
                 if (_textArray.Count <= CurrentPosition.y)
@@ -161,24 +171,52 @@ public class Monitor : MonoBehaviour
     }
 
     void BackspacePressed()
-    {
-        Debug.Log("Current: " + _currentCmd);
+    {        
         if (_currentCmd.Length > 0)
         {
-            _currentCmd = _currentCmd.Substring(0, _currentCmd.Length - 1);
+            _currentCmd = _currentCmd.Remove(CurrentPositionInCmd - 1, 1);
             if (CurrentPosition.x > 0)
             {
                 _textArray[(int)CurrentPosition.y].RemoveAt((int)CurrentPosition.x - 1);
-                CurrentPosition.x--;                
+                CurrentPosition.x--;
             }
             else
             {
-                _textArray.RemoveAt((int)CurrentPosition.y);
-                CurrentPosition.y = CurrentPosition.y - 1;
+                if (_textArray[(int)CurrentPosition.y].Count <= 0)
+                {
+                    _textArray.RemoveAt((int)CurrentPosition.y);
+                }
+                CurrentPosition.y--;
                 CurrentPosition.x = _textArray[(int)CurrentPosition.y].Count - 1;
                 _textArray[(int)CurrentPosition.y].RemoveAt((int)CurrentPosition.x);
+
+                if (_textArray.Count >= CurrentPosition.y + 1)
+                {
+                    Debug.Log("First");
+                    if (_textArray[(int)CurrentPosition.y + 1].Count > 0)
+                    {
+                        ShiftFollowingChars((int)CurrentPosition.y + 1);
+                    }
+                }
             }
             CurrentPositionInCmd--;            
+        }
+        Debug.Log("Current: " + _currentCmd);
+    }
+
+    void ShiftFollowingChars(int line)
+    {
+        Debug.Log("Shifting");
+        if (_textArray[line - 1].Count < width)
+        {
+            char removedChar = _textArray[line][0];
+            _textArray[line].RemoveAt(0);
+            _textArray[line - 1].Add(removedChar);
+        }
+        Debug.Log("Count: " + _textArray.Count + ", line+1: " + (line + 1));
+        if (_textArray.Count > line + 1)
+        {
+            ShiftFollowingChars(line + 1);
         }
     }
 
@@ -239,7 +277,6 @@ public class Monitor : MonoBehaviour
     void InsertChar(char val, int line, int pos = 0)
     {
         _textArray[line].Insert(pos, val);
-        Debug.Log("Size: " + _textArray[line].Count);
         if (_textArray[line].Count > width - 1)
         {
             char removedVal = _textArray[line][width - 1];
