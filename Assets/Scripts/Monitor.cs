@@ -172,13 +172,15 @@ public class Monitor : MonoBehaviour
 
     void BackspacePressed()
     {        
-        if (_currentCmd.Length > 0)
+        if (_currentCmd.Length > 0 && CurrentPositionInCmd > 0)
         {
             _currentCmd = _currentCmd.Remove(CurrentPositionInCmd - 1, 1);
             if (CurrentPosition.x > 0)
             {
                 _textArray[(int)CurrentPosition.y].RemoveAt((int)CurrentPosition.x - 1);
                 CurrentPosition.x--;
+
+                BeginShiftFollowingChars();
             }
             else
             {
@@ -190,33 +192,42 @@ public class Monitor : MonoBehaviour
                 CurrentPosition.x = _textArray[(int)CurrentPosition.y].Count - 1;
                 _textArray[(int)CurrentPosition.y].RemoveAt((int)CurrentPosition.x);
 
-                if (_textArray.Count >= CurrentPosition.y + 1)
-                {
-                    Debug.Log("First");
-                    if (_textArray[(int)CurrentPosition.y + 1].Count > 0)
-                    {
-                        ShiftFollowingChars((int)CurrentPosition.y + 1);
-                    }
-                }
+                BeginShiftFollowingChars();
             }
             CurrentPositionInCmd--;            
         }
         Debug.Log("Current: " + _currentCmd);
     }
 
+    void BeginShiftFollowingChars()
+    {
+        CheckIfNextLineEmptyForBackspace((int)CurrentPosition.y);
+    }
+
     void ShiftFollowingChars(int line)
     {
-        Debug.Log("Shifting");
         if (_textArray[line - 1].Count < width)
         {
             char removedChar = _textArray[line][0];
             _textArray[line].RemoveAt(0);
             _textArray[line - 1].Add(removedChar);
         }
-        Debug.Log("Count: " + _textArray.Count + ", line+1: " + (line + 1));
+
+        CheckIfNextLineEmptyForBackspace(line);
+    }
+
+    void CheckIfNextLineEmptyForBackspace(int line)
+    {
         if (_textArray.Count > line + 1)
         {
-            ShiftFollowingChars(line + 1);
+            if (_textArray[line + 1].Count > 0)
+            {
+                ShiftFollowingChars(line + 1);
+            }
+            else
+            {
+                _textArray.RemoveAt(line + 1);
+            }
         }
     }
 
