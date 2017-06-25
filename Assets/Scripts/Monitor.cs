@@ -85,7 +85,15 @@ public class Monitor : MonoBehaviour
                         BackspacePressed();
                         break;
                     default:                        
-                        AddTextValue((char)c);
+                        if (_currentCmd.Length > 0 && CurrentPositionInCmd != _currentCmd.Length)
+                        {
+                            BeginInsertChar((char)c, (int)CurrentPosition.y, (int)CurrentPosition.x);
+                        }
+                        else
+                        {
+                            AddTextValue((char)c);
+                        }
+                        Debug.Log(CurrentPositionInCmd + ", " + _currentCmd.Length + ", " + _currentCmd);
                         break;
                 }
             }
@@ -210,6 +218,39 @@ public class Monitor : MonoBehaviour
             }
         }
         Debug.Log("CurrentPos: " + CurrentPosition + ", Pos: " + CurrentPositionInCmd + ", Length: " + _currentCmd.Length);
+    }
+
+    void BeginInsertChar(char val, int line, int pos)
+    {
+        _currentCmd = _currentCmd.Insert(CurrentPositionInCmd, val.ToString());
+        InsertChar(val, line, pos);
+        CurrentPositionInCmd++;
+        if (CurrentPosition.x >= width - 2)
+        {
+            CurrentPosition.x = 0;
+            CurrentPosition.y++;
+        }
+        else
+        {
+            CurrentPosition.x++;
+        }        
+    }
+
+    void InsertChar(char val, int line, int pos = 0)
+    {
+        _textArray[line].Insert(pos, val);
+        Debug.Log("Size: " + _textArray[line].Count);
+        if (_textArray[line].Count > width - 1)
+        {
+            char removedVal = _textArray[line][width - 1];
+            _textArray[line].RemoveAt(width - 1);            
+            if (_textArray.Count <= line + 1)
+            {
+                Debug.Log("ADDING");
+                _textArray.Add(new List<char>());
+            }
+            InsertChar(removedVal, line + 1);
+        }        
     }
 
     void ExecuteCommand()
