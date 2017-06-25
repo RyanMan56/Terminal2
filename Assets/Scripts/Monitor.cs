@@ -146,7 +146,7 @@ public class Monitor : MonoBehaviour
     {
         ExecuteCommand();
         _currentCmd = "";
-        CurrentPosition = new Vector2(0, CurrentPosition.y + 1);
+        CurrentPosition = new Vector2(0, _textArray.Count);
         CurrentPositionInCmd = 0;
 
         _textArray.Add(new List<char>());
