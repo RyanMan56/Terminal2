@@ -17,7 +17,7 @@ public class Monitor : MonoBehaviour
     private Collider _screenCollider;
     private ScreenCursor _cursorScript;
 
-    private string _currentCmd = "";
+    private string _currentCmd = "";    
     private List<List<char>> _textArray, _lastTextArray;
 
     // Use this for initialization
@@ -49,9 +49,9 @@ public class Monitor : MonoBehaviour
     void OnGUI()
     {
         Event e = Event.current;
-        if (e.isKey && ((e.keyCode == KeyCode.LeftArrow) || e.keyCode == KeyCode.RightArrow))
+        if (e.type == EventType.KeyDown && ((e.keyCode == KeyCode.LeftArrow) || e.keyCode == KeyCode.RightArrow))
         {
-            ArrowPressed(e.keyCode); // Needs to be done here unfortunately, Input.inputString only supports ASCII characters
+            ArrowPressed(e.keyCode);
         }
     }
 
@@ -73,7 +73,6 @@ public class Monitor : MonoBehaviour
         string inputString = Input.inputString;
         if (inputString != "")
         {
-            Debug.Log(inputString);
             foreach (KeyCode c in inputString)
             {
                 _cursorScript.ResetTimer();
@@ -85,8 +84,7 @@ public class Monitor : MonoBehaviour
                     case KeyCode.Backspace:
                         BackspacePressed();
                         break;
-                    default:
-                        _currentCmd += Input.inputString;
+                    default:                        
                         AddTextValue((char)c);
                         break;
                 }
@@ -117,13 +115,12 @@ public class Monitor : MonoBehaviour
 
     void AddTextValue(char val)
     {
-        Debug.Log("Current: " + _currentCmd);
+        Debug.Log("Current: " + _currentCmd + "_");
 
         if (_textArray.Count.Equals(0))
         {
             _textArray.Add(new List<char>() { val });
-            CurrentPosition.x++;
-            CurrentPositionInCmd++;
+            CurrentPosition.x++;            
         }
         else
         {
@@ -139,9 +136,10 @@ public class Monitor : MonoBehaviour
             else
             {
                 CurrentPosition.x++;
-                CurrentPositionInCmd++;
             }
         }
+        _currentCmd += val;
+        CurrentPositionInCmd++;
     }
 
     void ReturnPressed()
@@ -172,7 +170,7 @@ public class Monitor : MonoBehaviour
                 CurrentPosition.x = _textArray[(int)CurrentPosition.y].Count - 1;
                 _textArray[(int)CurrentPosition.y].RemoveAt((int)CurrentPosition.x);
             }
-            CurrentPositionInCmd--;
+            CurrentPositionInCmd--;            
         }
     }
 
@@ -184,7 +182,7 @@ public class Monitor : MonoBehaviour
             if (CurrentPositionInCmd < _currentCmd.Length)
             {
                 CurrentPositionInCmd++;
-                if (CurrentPosition.x < width - 1)
+                if (CurrentPosition.x < width - 2)
                 {
                     CurrentPosition.x++;
                 }
@@ -211,6 +209,7 @@ public class Monitor : MonoBehaviour
                 }
             }
         }
+        Debug.Log("CurrentPos: " + CurrentPosition + ", Pos: " + CurrentPositionInCmd + ", Length: " + _currentCmd.Length);
     }
 
     void ExecuteCommand()
