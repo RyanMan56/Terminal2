@@ -86,6 +86,7 @@
     <Compile Include="Assets\Scripts\Terminal\FileSystem.cs" />
     <Compile Include="Assets\Scripts\Terminal\Location.cs" />
     <Compile Include="Assets\Scripts\Terminal\PlayerController.cs" />
+    <Compile Include="Assets\Scripts\Terminal\Response.cs" />
     <Compile Include="Assets\Scripts\Terminal\ResponseSystem.cs" />
     <Compile Include="Assets\Scripts\Terminal\ScreenCursor.cs" />
   </ItemGroup>

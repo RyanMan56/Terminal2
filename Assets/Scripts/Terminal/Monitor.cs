@@ -20,6 +20,9 @@ public class Monitor : MonoBehaviour
     private string _currentCmd = "";    
     private List<List<char>> _textArray, _lastTextArray;
 
+    private FileSystem _fileSystem;
+    private ResponseSystem _responseSystem;
+
     // Use this for initialization
     void Start()
     {
@@ -33,6 +36,8 @@ public class Monitor : MonoBehaviour
         _textArray = new List<List<char>>();
         _lastTextArray = new List<List<char>>();
         CurrentPosition = new Vector2(0, 0);
+
+        _responseSystem = new ResponseSystem();
     }
 
     // Update is called once per frame
@@ -162,12 +167,7 @@ public class Monitor : MonoBehaviour
 
     void ReturnPressed()
     {
-        ExecuteCommand();
-        _currentCmd = "";
-        CurrentPosition = new Vector2(0, _textArray.Count);
-        CurrentPositionInCmd = 0;
-
-        _textArray.Add(new List<char>());
+        ExecuteCommand();        
     }
 
     void BackspacePressed()
@@ -303,7 +303,13 @@ public class Monitor : MonoBehaviour
 
     void ExecuteCommand()
     {
-        Debug.Log("Returned value: " + _currentCmd);
+        string response = _responseSystem.MakeCommand(_currentCmd);
+
+        _currentCmd = "";
+        CurrentPosition = new Vector2(0, _textArray.Count);
+        CurrentPositionInCmd = 0;
+
+        _textArray.Add(new List<char>());
     }
 
     bool CompareLists<T>(List<List<T>> A, List<List<T>> B)
